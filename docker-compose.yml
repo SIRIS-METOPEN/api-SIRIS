@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: siris-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: siris_db
+      POSTGRES_USER: siris_user
+      POSTGRES_PASSWORD: siris_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
