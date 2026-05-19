@@ -118,5 +118,5 @@
     "builtin": true
   },
   "globals": {},
-  "ignorePatterns": ["src/lib/api/generated/**"]
+  "ignorePatterns": ["src/lib/api/generated/**", "drizzle/**"]
 }
