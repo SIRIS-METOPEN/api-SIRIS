@@ -1,0 +1,38 @@
+{
+  "name": "api-siris",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260519.1",
+    "@types/bun": "latest",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "oxfmt": "^0.50.0",
+    "oxlint": "^1.65.0",
+    "wrangler": "^4.92.0"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.4.0",
+    "@scalar/hono-api-reference": "^0.10.16",
+    "better-auth": "^1.6.11",
+    "drizzle-orm": "^0.45.2",
+    "drizzle-zod": "^0.8.3",
+    "hono": "^4.12.19",
+    "postgres": "^3.4.9",
+    "stoker": "^2.0.1",
+    "zod": "^4.4.3"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "fl": "oxlint && oxfmt --write",
+    "check": "tsc --noEmit"
+  }
+}

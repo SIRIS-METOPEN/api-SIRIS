@@ -1,0 +1,9 @@
+name = "api-siris"
+compatibility_date = "2024-04-01"
+main = "src/index.ts"
+
+[observability]
+enabled = true
+
+[vars]
+NODE_ENV = "development"
