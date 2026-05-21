@@ -4,7 +4,7 @@
   "type": "module",
   "module": "index.ts",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --port 8000",
     "openapi:generate": "bun run src/scripts/generate-openapi.ts",
     "build": "tsc --noEmit",
     "deploy": "wrangler deploy --minify",

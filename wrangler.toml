@@ -1,9 +1,43 @@
 name = "api-siris"
-compatibility_date = "2024-04-01"
 main = "src/index.ts"
+compatibility_date = "2025-03-17"
+compatibility_flags = ["nodejs_compat"]
 
-[observability]
-enabled = true
+# Cloudflare Hyperdrive for PostgreSQL connection pooling
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "36e35e858045461caa93c393c5f67d4f"
+localConnectionString = "postgresql://siris_user:siris_password@localhost:5433/siris_db"
+
+
+# ============================================================
+# Secrets — DO NOT define secrets in this file.
+# Set via CLI: wrangler secret put <SECRET_NAME>
+#
+# Required secrets:
+#   - DATABASE_URL
+#   - BETTER_AUTH_SECRET
+#   - BETTER_AUTH_URL
+#   - GOOGLE_CLIENT_ID
+#   - GOOGLE_CLIENT_SECRET
+#   - FRONTEND_URLS
+#
+# For local development, set these in .dev.vars
+# ============================================================
+
+# Dev environment uses .dev.vars automatically
+[env.development]
+# Development-specific overrides if needed
+
+[env.production]
+# Production environment config
 
 [vars]
 NODE_ENV = "development"
+
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true
+
+[observability.traces]

@@ -3,7 +3,7 @@ import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { getAuth } from "./auth";
 import { EnvSchema } from "./env";
 import { createRouter } from "./factory";
-// import { authMiddleware } from "./middlewares/auth";
+import { authRouter } from "./modules/auth";
 import { corsMiddleware } from "./middlewares/cors";
 import z from "zod";
 
@@ -111,7 +111,7 @@ app.get(
 );
 
 // Auth — semua /api/auth/* didelegasikan ke Better Auth
-// app.route("/api/auth", authRouter);
+app.route("/api/auth", authRouter);
 
 app.get("/", (c) => c.text("SIRIS API is running."));
 
@@ -149,7 +149,7 @@ app.get("/test-login", (c) => {
               const res = await fetch("/api/auth/sign-in/social", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ provider: "google", callbackURL: "${c.env.BETTER_AUTH_URL}/test-login" })
+                body: JSON.stringify({ provider: "google", callbackURL: "${c.env.BETTER_AUTH_URL}/" })
               });
               const data = await res.json();
               if (data.url) {
@@ -164,21 +164,28 @@ app.get("/test-login", (c) => {
             }
           }
 
-          // Check if returning from OAuth callback
-          const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.has("code") || urlParams.has("error")) {
-            document.getElementById("status").textContent = "Callback received. Checking session...";
-            fetch("/api/auth/get-session")
-              .then(r => r.json())
-              .then(data => {
-                document.getElementById("status").textContent = data?.user ? "Logged in!" : "Not logged in";
+          // Check session unconditionally on load
+          document.getElementById("status").textContent = "Checking session...";
+          fetch("/api/auth/get-session", { credentials: "include" })
+            .then(r => r.json())
+            .then(data => {
+              if (data && data.user) {
+                document.getElementById("status").textContent = "Logged in as " + data.user.email;
                 document.getElementById("result").textContent = JSON.stringify(data, null, 2);
-              })
-              .catch(e => {
-                document.getElementById("status").textContent = "Session check failed";
-                document.getElementById("result").textContent = e.message;
-              });
-          }
+              } else {
+                document.getElementById("status").textContent = "Not logged in. Click the button to login.";
+                
+                // Show error if redirected with error
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has("error")) {
+                  document.getElementById("result").textContent = "OAuth Error: " + urlParams.get("error");
+                }
+              }
+            })
+            .catch(e => {
+              document.getElementById("status").textContent = "Session check failed";
+              document.getElementById("result").textContent = e.message;
+            });
         </script>
       </body>
     </html>

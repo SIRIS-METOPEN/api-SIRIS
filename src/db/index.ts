@@ -8,6 +8,9 @@ import type { Env } from "../env";
  * Cloudflare Workers is stateless — module-level singletons are unreliable
  * across invocations. HYPERDRIVE is used in production; DATABASE_URL for local dev.
  *
+ * Local dev: Wrangler simulates Hyperdrive and proxies to localConnectionString
+ * (Docker postgres). Production: real Cloudflare Hyperdrive → Neon.
+ *
  * @param env - The environment object containing HYPERDRIVE binding or DATABASE_URL
  */
 export const getDb = (env: Env) => {
