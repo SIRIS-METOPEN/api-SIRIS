@@ -56,4 +56,4 @@ Proyek ini mengadopsi arsitektur **Modular Monolith** dengan pendekatan Cloudfla
    bun run check
    ```
 
-API Docs (Scalar) dapat diakses di `http://localhost:8787/docs`.
+API Docs (Scalar) dapat diakses di `http://localhost:8000/docs`.

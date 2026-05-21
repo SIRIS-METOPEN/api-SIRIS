@@ -34,7 +34,7 @@ export function createAuth(env: Env) {
         role: {
           type: "string",
           required: false,
-          defaultValue: "tenant",
+          defaultValue: "user",
         },
       },
     },
