@@ -8,6 +8,13 @@
       "when": 1779174979266,
       "tag": "0000_large_greymalkin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780129444238,
+      "tag": "0001_open_kid_colt",
+      "breakpoints": true
     }
   ]
 }
