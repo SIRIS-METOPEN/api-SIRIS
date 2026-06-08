@@ -15,8 +15,8 @@ import type { Env } from "./env";
  * falling back to direct Neon connection for local development.
  */
 export function createAuth(env: Env) {
-  // Get a fresh database connection for this request
   const db = getDb(env);
+  const isProduction = env.BETTER_AUTH_URL?.startsWith("https://");
 
   return betterAuth({
     database: drizzleAdapter(db, {
@@ -56,6 +56,13 @@ export function createAuth(env: Env) {
     advanced: {
       trustProxy: true,
       cookiePrefix: "siris",
+      defaultCookieAttributes: isProduction
+        ? {
+            sameSite: "none",
+            secure: true,
+            partitioned: true,
+          }
+        : undefined,
     },
 
     session: {
