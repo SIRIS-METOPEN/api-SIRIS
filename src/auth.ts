@@ -51,6 +51,10 @@ export function createAuth(env: Env) {
 
     account: {
       skipStateCookieCheck: true,
+      accountLinking: {
+        enabled: true,
+        trustedProviders: ["google"],
+      },
     },
 
     advanced: {
