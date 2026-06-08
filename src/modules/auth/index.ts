@@ -22,6 +22,10 @@ router.on(["POST", "GET"], "/*", async (c) => {
       .map((c) => c.trim().split("=")[0])
       .filter(Boolean);
     console.log(`[AUTH] Cookie names received: [${cookieNames.join(", ")}]`);
+    // Log secret prefix to verify it's consistent (DO NOT log full secret)
+    const secretPrefix = c.env.BETTER_AUTH_SECRET?.substring(0, 8) ?? "UNSET";
+    console.log(`[AUTH] Secret prefix: ${secretPrefix}...`);
+    console.log(`[AUTH] BETTER_AUTH_URL: ${c.env.BETTER_AUTH_URL}`);
   }
 
   const frontendUrls = c.env.FRONTEND_URLS;
@@ -46,6 +50,21 @@ router.on(["POST", "GET"], "/*", async (c) => {
     const authResponse = await getAuth(c.env).handler(c.req.raw);
     console.log(`[AUTH] Response status: ${authResponse.status}`);
 
+    // For get-session, log the response body to see what Better Auth returns
+    let responseBody: string | null = null;
+    if (isGetSession) {
+      const clonedRes = authResponse.clone();
+      try {
+        const bodyText = await clonedRes.text();
+        responseBody = bodyText;
+        console.log(
+          `[AUTH] get-session response body: ${bodyText.substring(0, 200)}`,
+        );
+      } catch (e) {
+        console.log(`[AUTH] Could not read response body: ${e}`);
+      }
+    }
+
     // Extract Set-Cookie headers before copying the response
     const setCookies = authResponse.headers.getSetCookie
       ? authResponse.headers.getSetCookie()
@@ -59,7 +78,10 @@ router.on(["POST", "GET"], "/*", async (c) => {
     });
 
     // Build new response with CORS + individual Set-Cookie headers
-    const response = new Response(authResponse.body, {
+    // If we already consumed the body above (for logging), use the text; otherwise use original body
+    const responseBodyInit =
+      responseBody !== null ? responseBody : authResponse.body;
+    const response = new Response(responseBodyInit, {
       status: authResponse.status,
       statusText: authResponse.statusText,
       headers: authResponse.headers,
