@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { openAPI } from "better-auth/plugins";
+import { openAPI, anonymous } from "better-auth/plugins";
 import { getDb } from "./db";
 import * as schema from "./db/schema";
 import type { Env } from "./env";
@@ -71,6 +71,10 @@ export function createAuth(env: Env) {
       },
     },
 
+    emailAndPassword: {
+      enabled: true,
+    },
+
     socialProviders: {
       google: {
         clientId: env.GOOGLE_CLIENT_ID,
@@ -87,6 +91,7 @@ export function createAuth(env: Env) {
       openAPI({
         disableDefaultReference: true,
       }),
+      anonymous(),
     ],
   });
 }

@@ -15,6 +15,13 @@
       "when": 1780129444238,
       "tag": "0001_open_kid_colt",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780910048934,
+      "tag": "0002_spicy_hydra",
+      "breakpoints": true
     }
   ]
 }
