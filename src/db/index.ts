@@ -1,29 +1,28 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import pg from "pg";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 import type { Env } from "../env";
 
 /**
  * Creates a fresh DB connection per-request.
  * Cloudflare Workers is stateless — module-level singletons are unreliable
- * across invocations. HYPERDRIVE is used in production; DATABASE_URL for local dev.
+ * across invocations.
  *
- * Local dev: Wrangler simulates Hyperdrive and proxies to localConnectionString
- * (Docker postgres). Production: real Cloudflare Hyperdrive → Neon.
+ * We use Neon Serverless HTTP driver. This avoids TCP connection leaks
+ * in Cloudflare Workers and bypasses Hyperdrive caching which causes
+ * read-after-write inconsistencies for authentication.
  *
- * @param env - The environment object containing HYPERDRIVE binding or DATABASE_URL
+ * @param env - The environment object containing DATABASE_URL
  */
 export const getDb = (env: Env) => {
-  // Bypass HYPERDRIVE for auth to prevent read-caching (SELECT) lag.
-  // Neon already provides a connection pooler, so we connect directly.
   const connectionString = env.DATABASE_URL;
 
   if (!connectionString) {
     throw new Error(
-      "No database connection string available. Check HYPERDRIVE or DATABASE_URL.",
+      "No database connection string available. Check DATABASE_URL.",
     );
   }
 
-  const pool = new pg.Pool({ connectionString, max: 1 });
-  return drizzle(pool, { schema });
+  const sql = neon(connectionString);
+  return drizzle(sql, { schema });
 };
