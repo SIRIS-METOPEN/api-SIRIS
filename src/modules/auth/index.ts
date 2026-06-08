@@ -4,46 +4,73 @@ import { getAuth } from "../../auth";
 const router = createRouter();
 
 router.on(["POST", "GET"], "/*", async (c) => {
-  console.log("=== AUTH REQUEST START ===");
-  console.log("Method:", c.req.method);
-  console.log("Path:", c.req.path);
-  console.log("Origin:", c.req.header("Origin"));
+  const path = c.req.path;
+  const method = c.req.method;
+  const origin = c.req.header("Origin") ?? "NO_ORIGIN";
+  const rawCookieHeader = c.req.header("Cookie") ?? "NO_COOKIES";
+  const isGetSession = path.includes("get-session");
+  const isCallback = path.includes("callback");
+
+  // === DIAGNOSTIC LOGGING ===
+  console.log(`\n[AUTH] ${method} ${path}`);
+  console.log(`[AUTH] Origin: ${origin}`);
+  if (isGetSession || isCallback) {
+    console.log(`[AUTH] Cookie header: ${rawCookieHeader}`);
+    // List each cookie name (not values for security)
+    const cookieNames = rawCookieHeader
+      .split(";")
+      .map((c) => c.trim().split("=")[0])
+      .filter(Boolean);
+    console.log(`[AUTH] Cookie names received: [${cookieNames.join(", ")}]`);
+  }
 
   const frontendUrls = c.env.FRONTEND_URLS;
-  const allowedOrigins = Array.isArray(frontendUrls)
-    ? frontendUrls
-    : (frontendUrls as string).split(",").map((url) => url.trim());
+  const allowedOrigins = (
+    Array.isArray(frontendUrls)
+      ? frontendUrls
+      : (frontendUrls as string).split(",")
+  ).map((url) => url.trim());
 
-  const origin = c.req.header("Origin");
   const corsHeaders: Record<string, string> = {};
-
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin && origin !== "NO_ORIGIN" && allowedOrigins.includes(origin)) {
     corsHeaders["Access-Control-Allow-Origin"] = origin;
     corsHeaders["Access-Control-Allow-Credentials"] = "true";
+    console.log(`[AUTH] CORS headers will be set for origin: ${origin}`);
+  } else {
+    console.log(
+      `[AUTH] WARN: Origin "${origin}" not in allowedOrigins: [${allowedOrigins.join(", ")}]`,
+    );
   }
 
   try {
-    console.log("Calling Better Auth handler...");
     const authResponse = await getAuth(c.env).handler(c.req.raw);
-    console.log("Better Auth response status:", authResponse.status);
+    console.log(`[AUTH] Response status: ${authResponse.status}`);
 
-    // Extract Set-Cookie headers before creating a new Response to prevent folding
+    // Extract Set-Cookie headers before copying the response
     const setCookies = authResponse.headers.getSetCookie
       ? authResponse.headers.getSetCookie()
       : [];
+    console.log(`[AUTH] Set-Cookie headers count: ${setCookies.length}`);
+    setCookies.forEach((cookie, i) => {
+      // Log cookie name + attributes, but not the value
+      const [nameVal, ...attrs] = cookie.split(";");
+      const name = nameVal.split("=")[0];
+      console.log(`[AUTH] Set-Cookie[${i}]: ${name}; ${attrs.join(";")}`);
+    });
 
-    // Create a new Response copy
-    const response = new Response(authResponse.body, authResponse);
+    // Build new response with CORS + individual Set-Cookie headers
+    const response = new Response(authResponse.body, {
+      status: authResponse.status,
+      statusText: authResponse.statusText,
+      headers: authResponse.headers,
+    });
 
     // Apply CORS headers
     Object.entries(corsHeaders).forEach(([key, value]) => {
-      if (!response.headers.has(key)) {
-        response.headers.set(key, value);
-      }
+      response.headers.set(key, value);
     });
 
-    // Prevent Cloudflare Workers from folding multiple Set-Cookie headers into a single invalid comma-separated string.
-    // This is critical for OAuth callbacks which set multiple cookies (session, state, code_verifier).
+    // Re-apply Set-Cookie headers individually to prevent folding
     if (setCookies.length > 0) {
       response.headers.delete("Set-Cookie");
       setCookies.forEach((cookie) => {
@@ -51,23 +78,12 @@ router.on(["POST", "GET"], "/*", async (c) => {
       });
     }
 
-    console.log("=== AUTH REQUEST SUCCESS ===");
     return response;
   } catch (error: unknown) {
-    console.error("=== AUTH REQUEST ERROR ===");
-    console.error("[BetterAuth Error]:", error);
-
+    console.error("[AUTH] ERROR:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : undefined;
-
-    // Log additional error details for database connection debugging
-    if (error && typeof error === "object" && "cause" in error) {
-      console.error("Error cause:", (error as { cause: unknown }).cause);
-    }
-
-    console.error("Error message:", errorMessage);
-    console.error("Error stack:", errorStack);
 
     return c.json(
       {
