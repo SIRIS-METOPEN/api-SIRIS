@@ -27,19 +27,17 @@ router.on(["POST", "GET"], "/*", async (c) => {
     const authResponse = await getAuth(c.env).handler(c.req.raw);
     console.log("Better Auth response status:", authResponse.status);
 
-    const newHeaders = new Headers(authResponse.headers);
+    // Create a new Response copy to preserve multiple Set-Cookie headers
+    // while keeping headers modifiable for CORS headers injection.
+    const response = new Response(authResponse.body, authResponse);
     Object.entries(corsHeaders).forEach(([key, value]) => {
-      if (!newHeaders.has(key)) {
-        newHeaders.set(key, value);
+      if (!response.headers.has(key)) {
+        response.headers.set(key, value);
       }
     });
 
     console.log("=== AUTH REQUEST SUCCESS ===");
-    return new Response(authResponse.body, {
-      status: authResponse.status,
-      statusText: authResponse.statusText,
-      headers: newHeaders,
-    });
+    return response;
   } catch (error: unknown) {
     console.error("=== AUTH REQUEST ERROR ===");
     console.error("[BetterAuth Error]:", error);
