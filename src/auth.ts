@@ -58,6 +58,21 @@ export function createAuth(env: Env) {
       },
     },
 
+    databaseHooks: {
+      user: {
+        create: {
+          before: async (user) => {
+            return {
+              data: {
+                ...user,
+                emailVerified: true,
+              },
+            };
+          },
+        },
+      },
+    },
+
     advanced: {
       trustProxy: true,
       cookiePrefix: "siris",
