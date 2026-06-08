@@ -45,8 +45,9 @@ export function createAuth(env: Env) {
     trustedOrigins: [
       ...(Array.isArray(env.FRONTEND_URLS)
         ? env.FRONTEND_URLS
-        : (env.FRONTEND_URLS as string).split(",").map((url) => url.trim())),
-      env.BETTER_AUTH_URL,
+        : (env.FRONTEND_URLS as string).split(",")
+      ).map((url) => url.trim().replace(/\/$/, "")),
+      env.BETTER_AUTH_URL.replace(/\/$/, ""),
     ],
 
     account: {

@@ -3,9 +3,11 @@ import { factory } from "../factory";
 
 export const corsMiddleware = factory.createMiddleware((c, next) => {
   const frontendUrls = c.env.FRONTEND_URLS;
-  const allowedOrigins = Array.isArray(frontendUrls)
-    ? frontendUrls
-    : (frontendUrls as string).split(",").map((url) => url.trim());
+  const allowedOrigins = (
+    Array.isArray(frontendUrls)
+      ? frontendUrls
+      : (frontendUrls as string).split(",")
+  ).map((url: string) => url.trim().replace(/\/$/, ""));
 
   return cors({
     origin: (origin) => {
