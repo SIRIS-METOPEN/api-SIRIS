@@ -16,6 +16,7 @@
         "hono": "^4.11.7",
         "oxfmt": "^0.28.0",
         "oxlint": "^1.43.0",
+        "stoker": "^2.0.1",
         "zod": "^4.3.6",
       },
       "devDependencies": {
@@ -422,6 +423,8 @@
     "source-map-support": ["source-map-support@0.5.21", "", { "dependencies": { "buffer-from": "^1.0.0", "source-map": "^0.6.0" } }, "sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w=="],
 
     "split2": ["split2@4.2.0", "", {}, "sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg=="],
+
+    "stoker": ["stoker@2.0.1", "", { "peerDependencies": { "@asteasolutions/zod-to-openapi": "^8.0.0", "@hono/zod-openapi": ">=1.0.0", "hono": "^4.0.0", "openapi3-ts": "^4.5.0" }, "optionalPeers": ["@asteasolutions/zod-to-openapi", "@hono/zod-openapi", "openapi3-ts"] }, "sha512-liSQNnJmn8fWSEan7sVaFe6iSHuN3X02fDGLS6snwW+FUuKi5HmKUHm3P+Kzr5xiDPqRpmSTtmGEBbSL9H2zkQ=="],
 
     "string-argv": ["string-argv@0.3.2", "", {}, "sha512-aqD2Q0144Z+/RqG52NeHEkZauTAUWJO8c6yTftGJKO3Tja5tUgIfmIl6kExvhtxSDP7fXB6DvzkfMpCd/F3G+Q=="],
 
