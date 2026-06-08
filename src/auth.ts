@@ -89,7 +89,8 @@ export function createAuth(env: Env) {
       updateAge: 60 * 60 * 24,
       cookieCache: {
         enabled: true,
-        maxAge: 5,
+        maxAge: 60 * 60 * 24 * 7, // 7 days — matches session lifetime, prevents stale token collision
+        refreshCache: true, // refresh the cache cookie before it expires
       },
     },
 
