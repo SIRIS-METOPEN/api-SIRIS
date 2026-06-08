@@ -27,14 +27,29 @@ router.on(["POST", "GET"], "/*", async (c) => {
     const authResponse = await getAuth(c.env).handler(c.req.raw);
     console.log("Better Auth response status:", authResponse.status);
 
-    // Create a new Response copy to preserve multiple Set-Cookie headers
-    // while keeping headers modifiable for CORS headers injection.
+    // Extract Set-Cookie headers before creating a new Response to prevent folding
+    const setCookies = authResponse.headers.getSetCookie
+      ? authResponse.headers.getSetCookie()
+      : [];
+
+    // Create a new Response copy
     const response = new Response(authResponse.body, authResponse);
+
+    // Apply CORS headers
     Object.entries(corsHeaders).forEach(([key, value]) => {
       if (!response.headers.has(key)) {
         response.headers.set(key, value);
       }
     });
+
+    // Prevent Cloudflare Workers from folding multiple Set-Cookie headers into a single invalid comma-separated string.
+    // This is critical for OAuth callbacks which set multiple cookies (session, state, code_verifier).
+    if (setCookies.length > 0) {
+      response.headers.delete("Set-Cookie");
+      setCookies.forEach((cookie) => {
+        response.headers.append("Set-Cookie", cookie);
+      });
+    }
 
     console.log("=== AUTH REQUEST SUCCESS ===");
     return response;
