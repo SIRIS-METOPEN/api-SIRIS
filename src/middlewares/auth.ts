@@ -1,5 +1,6 @@
 import { getAuth } from "../auth";
 import { factory } from "../factory";
+import * as HttpStatusCodes from "stoker/http-status-codes";
 
 /**
  * Auth Middleware — Proteksi rute yang memerlukan login.
@@ -15,7 +16,7 @@ export const authMiddleware = factory.createMiddleware(async (c, next) => {
   });
 
   if (!session) {
-    return c.json({ message: "Unauthorized" }, 401);
+    return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
   }
 
   c.set("user", session.user);
