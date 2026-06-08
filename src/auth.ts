@@ -55,11 +55,7 @@ export function createAuth(env: Env) {
 
     advanced: {
       trustProxy: true,
-      cookiePrefix: "rents",
-      defaultCookieAttributes: {
-        sameSite: "none",
-        secure: true,
-      },
+      cookiePrefix: "siris",
     },
 
     session: {
