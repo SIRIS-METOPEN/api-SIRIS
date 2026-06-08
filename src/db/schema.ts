@@ -18,6 +18,7 @@ export const users = pgTable("users", {
     .default("user")
     .notNull(),
   phone: text("phone"),
+  isAnonymous: boolean("isAnonymous").default(false),
   createdAt: timestamp("createdAt").notNull(),
   updatedAt: timestamp("updatedAt").notNull(),
 });
