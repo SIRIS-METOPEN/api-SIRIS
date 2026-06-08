@@ -14,7 +14,9 @@ import type { Env } from "../env";
  * @param env - The environment object containing HYPERDRIVE binding or DATABASE_URL
  */
 export const getDb = (env: Env) => {
-  const connectionString = env.HYPERDRIVE?.connectionString ?? env.DATABASE_URL;
+  // Bypass HYPERDRIVE for auth to prevent read-caching (SELECT) lag.
+  // Neon already provides a connection pooler, so we connect directly.
+  const connectionString = env.DATABASE_URL;
 
   if (!connectionString) {
     throw new Error(

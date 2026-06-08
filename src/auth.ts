@@ -65,7 +65,6 @@ export function createAuth(env: Env) {
         ? {
             sameSite: "none",
             secure: true,
-            partitioned: true,
           }
         : undefined,
     },
