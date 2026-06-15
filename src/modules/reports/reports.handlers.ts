@@ -146,3 +146,79 @@ export const createReportHandler = async (c: AppContext) => {
     );
   }
 };
+
+export const getReportHandler = async (c: AppContext) => {
+  const ticketId = c.req.param("ticketId");
+  if (!ticketId) {
+    return c.json(
+      {
+        message: "Ticket ID is required",
+      },
+      HttpStatusCodes.BAD_REQUEST,
+    );
+  }
+  const db = getDb(c.env);
+
+  try {
+    const rows = await db
+      .select({
+        ticketId: reports.ticketId,
+        violationDate: reports.violationDate,
+        description: reports.description,
+        status: reports.status,
+        createdAt: reports.createdAt,
+        updatedAt: reports.updatedAt,
+        adminNotes: reports.adminNotes,
+        merchantName: merchants.name,
+        merchantCity: merchants.city,
+        merchantAddress: merchants.address,
+        evidenceUrl: reportEvidences.fileUrl,
+      })
+      .from(reports)
+      .leftJoin(merchants, eq(reports.merchantId, merchants.id))
+      .leftJoin(reportEvidences, eq(reports.id, reportEvidences.reportId))
+      .where(eq(reports.ticketId, ticketId))
+      .limit(1);
+
+    if (rows.length === 0) {
+      return c.json(
+        {
+          message: "Report not found",
+        },
+        HttpStatusCodes.NOT_FOUND,
+      );
+    }
+
+    const row = rows[0];
+
+    return c.json(
+      {
+        success: true as const,
+        data: {
+          ticketId: row.ticketId,
+          violationDate: row.violationDate.toISOString(),
+          description: row.description,
+          status: row.status,
+          createdAt: row.createdAt.toISOString(),
+          updatedAt: row.updatedAt.toISOString(),
+          adminNotes: row.adminNotes,
+          merchantName: row.merchantName || "Unknown",
+          merchantCity: row.merchantCity || null,
+          merchantAddress: row.merchantAddress || null,
+          evidenceUrl: row.evidenceUrl || null,
+        },
+      },
+      HttpStatusCodes.OK,
+    );
+  } catch (error: unknown) {
+    console.error("Error retrieving report:", error);
+    const message =
+      error instanceof Error ? error.message : "Failed to retrieve report";
+    return c.json(
+      {
+        message,
+      },
+      HttpStatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+};

@@ -54,6 +54,51 @@ export const createReportRoute = createRoute({
   },
 });
 
+export const getReportRoute = createRoute({
+  method: "get",
+  path: "/:ticketId",
+  request: {
+    params: z.object({
+      ticketId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: {
+      content: {
+        "application/json": {
+          schema: s.getReportResponseSchema,
+        },
+      },
+      description: "Report details retrieved successfully",
+    },
+    [HttpStatusCodes.NOT_FOUND]: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Report not found",
+    },
+    [HttpStatusCodes.BAD_REQUEST]: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Validation error or invalid ticketId",
+    },
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
 router.openapi(createReportRoute, handlers.createReportHandler);
+router.openapi(getReportRoute, handlers.getReportHandler);
 
 export { router as reportsRouter };

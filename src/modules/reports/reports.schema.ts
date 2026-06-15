@@ -118,3 +118,24 @@ export const createReportResponseSchema = z
   .openapi("CreateReportResponse");
 export type CreateReportInput = z.infer<typeof createReportInputSchema>;
 export type CreateReportResponse = z.infer<typeof createReportResponseSchema>;
+
+export const getReportResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.object({
+      ticketId: z.string(),
+      violationDate: z.string(),
+      description: z.string(),
+      status: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+      adminNotes: z.string().nullable().optional(),
+      merchantName: z.string(),
+      merchantCity: z.string().nullable().optional(),
+      merchantAddress: z.string().nullable().optional(),
+      evidenceUrl: z.string().nullable().optional(),
+    }),
+  })
+  .openapi("GetReportResponse");
+
+export type GetReportResponse = z.infer<typeof getReportResponseSchema>;
