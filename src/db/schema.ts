@@ -106,6 +106,7 @@ export const reports = pgTable("reports", {
     .notNull(),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  adminNotes: text("adminNotes"),
 });
 
 export const reportEvidences = pgTable("report_evidences", {
