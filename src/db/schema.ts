@@ -119,3 +119,17 @@ export const reportEvidences = pgTable("report_evidences", {
   fileName: text("fileName"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
+
+export const reportHistories = pgTable("report_histories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  reportId: uuid("reportId")
+    .notNull()
+    .references(() => reports.id, { onDelete: "cascade" }),
+  actorId: text("actorId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  oldStatus: text("oldStatus").notNull(),
+  newStatus: text("newStatus").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+});

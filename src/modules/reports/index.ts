@@ -1,3 +1,3 @@
-import { reportsRouter } from "./reports.routes";
+import { reportsRouter, dashboardRouter } from "./reports.routes";
 
-export { reportsRouter };
+export { reportsRouter, dashboardRouter };

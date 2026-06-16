@@ -156,3 +156,161 @@ export const getMyReportsResponseSchema = z
   .openapi("GetMyReportsResponse");
 
 export type GetMyReportsResponse = z.infer<typeof getMyReportsResponseSchema>;
+
+// Admin Dashboard metrics
+export const dashboardMetricsResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.object({
+      totalReports: z.object({ value: z.number(), trend: z.number() }),
+      pendingVerification: z.object({ value: z.number(), trend: z.number() }),
+      investigationActive: z.object({ value: z.number(), trend: z.number() }),
+      resolvedReports: z.object({ value: z.number(), trend: z.number() }),
+    }),
+  })
+  .openapi("DashboardMetricsResponse");
+
+export type DashboardMetricsResponse = z.infer<
+  typeof dashboardMetricsResponseSchema
+>;
+
+// Admin reports list
+export const adminGetReportsResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.array(
+      z.object({
+        id: z.string().uuid(),
+        ticketId: z.string(),
+        violationCategory: z.string().nullable().optional(),
+        merchantName: z.string(),
+        merchantCity: z.string().nullable().optional(),
+        status: z.string(),
+        createdAt: z.string(),
+      }),
+    ),
+    pagination: z.object({
+      total: z.number(),
+      page: z.number(),
+      limit: z.number(),
+      totalPages: z.number(),
+    }),
+  })
+  .openapi("AdminGetReportsResponse");
+
+export type AdminGetReportsResponse = z.infer<
+  typeof adminGetReportsResponseSchema
+>;
+
+// Admin report detail
+export const adminGetReportDetailResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.object({
+      id: z.string().uuid(),
+      ticketId: z.string(),
+      violationDate: z.string(),
+      description: z.string(),
+      status: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+      adminNotes: z.string().nullable().optional(),
+      merchant: z.object({
+        id: z.string().uuid(),
+        name: z.string(),
+        city: z.string().nullable().optional(),
+        address: z.string().nullable().optional(),
+        latitude: z.number().nullable().optional(),
+        longitude: z.number().nullable().optional(),
+      }),
+      reporter: z.object({
+        name: z.string().nullable().optional(),
+        phone: z.string().nullable().optional(),
+        email: z.string().nullable().optional(),
+        isAnonymous: z.boolean(),
+      }),
+      evidences: z.array(
+        z.object({
+          id: z.string().uuid(),
+          fileUrl: z.string(),
+          fileType: z.string().nullable().optional(),
+          fileName: z.string().nullable().optional(),
+        }),
+      ),
+      history: z.array(
+        z.object({
+          id: z.string().uuid(),
+          oldStatus: z.string(),
+          newStatus: z.string(),
+          notes: z.string().nullable().optional(),
+          createdAt: z.string(),
+          actorName: z.string(),
+        }),
+      ),
+    }),
+  })
+  .openapi("AdminGetReportDetailResponse");
+
+export type AdminGetReportDetailResponse = z.infer<
+  typeof adminGetReportDetailResponseSchema
+>;
+
+// Update status
+export const updateReportStatusInputSchema = z
+  .object({
+    status: z.enum([
+      "draft",
+      "submitted",
+      "in_review",
+      "verified",
+      "rejected",
+      "resolved",
+    ]),
+    notes: z.string().optional(),
+  })
+  .openapi("UpdateReportStatusInput");
+
+export type UpdateReportStatusInput = z.infer<
+  typeof updateReportStatusInputSchema
+>;
+
+export const updateReportStatusResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.object({
+      id: z.string().uuid(),
+      status: z.string(),
+      updatedAt: z.string(),
+    }),
+  })
+  .openapi("UpdateReportStatusResponse");
+
+export type UpdateReportStatusResponse = z.infer<
+  typeof updateReportStatusResponseSchema
+>;
+
+// Update internal notes
+export const updateInternalNotesInputSchema = z
+  .object({
+    notes: z.string().min(1, "Catatan internal tidak boleh kosong"),
+  })
+  .openapi("UpdateInternalNotesInput");
+
+export type UpdateInternalNotesInput = z.infer<
+  typeof updateInternalNotesInputSchema
+>;
+
+export const updateInternalNotesResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.object({
+      id: z.string().uuid(),
+      adminNotes: z.string().nullable().optional(),
+      updatedAt: z.string(),
+    }),
+  })
+  .openapi("UpdateInternalNotesResponse");
+
+export type UpdateInternalNotesResponse = z.infer<
+  typeof updateInternalNotesResponseSchema
+>;
