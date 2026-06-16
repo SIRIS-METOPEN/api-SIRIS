@@ -98,7 +98,39 @@ export const getReportRoute = createRoute({
   },
 });
 
+export const getMyReportsRoute = createRoute({
+  method: "get",
+  path: "/me",
+  responses: {
+    [HttpStatusCodes.OK]: {
+      content: {
+        "application/json": {
+          schema: s.getMyReportsResponseSchema,
+        },
+      },
+      description: "List of reports belonging to the current logged-in user",
+    },
+    [HttpStatusCodes.UNAUTHORIZED]: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "User is not logged in",
+    },
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
 router.openapi(createReportRoute, handlers.createReportHandler);
+router.openapi(getMyReportsRoute, handlers.getMyReportsHandler);
 router.openapi(getReportRoute, handlers.getReportHandler);
 
 export { router as reportsRouter };
