@@ -222,3 +222,62 @@ export const getReportHandler = async (c: AppContext) => {
     );
   }
 };
+
+export const getMyReportsHandler = async (c: AppContext) => {
+  const db = getDb(c.env);
+  let reporterId: string | null = null;
+
+  try {
+    const auth = createAuth(c.env);
+    const session = await auth.api.getSession({
+      headers: c.req.raw.headers,
+    });
+    if (session?.user) {
+      reporterId = session.user.id;
+    }
+  } catch (err) {
+    console.error("Failed to fetch user session:", err);
+  }
+
+  if (!reporterId) {
+    return c.json(
+      {
+        message: "Unauthorized. Please log in to view your reports.",
+      },
+      HttpStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  try {
+    const rows = await db
+      .select({
+        ticketId: reports.ticketId,
+        merchantName: merchants.name,
+        violationCategory: reports.description,
+        createdAt: reports.createdAt,
+        status: reports.status,
+      })
+      .from(reports)
+      .leftJoin(merchants, eq(reports.merchantId, merchants.id))
+      .where(eq(reports.reporterId, reporterId));
+
+    return c.json(
+      {
+        success: true as const,
+        data: rows.map((r) => ({
+          ticketId: r.ticketId,
+          merchantName: r.merchantName || "Unknown",
+          violationCategory: r.violationCategory || "Surcharge QRIS",
+          createdAt: r.createdAt.toISOString(),
+          status: r.status,
+        })),
+      },
+      HttpStatusCodes.OK,
+    );
+  } catch (error: unknown) {
+    console.error("Error retrieving my reports:", error);
+    const message =
+      error instanceof Error ? error.message : "Failed to retrieve reports";
+    return c.json({ message }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};

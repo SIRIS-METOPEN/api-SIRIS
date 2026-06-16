@@ -139,3 +139,20 @@ export const getReportResponseSchema = z
   .openapi("GetReportResponse");
 
 export type GetReportResponse = z.infer<typeof getReportResponseSchema>;
+
+export const getMyReportsResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.array(
+      z.object({
+        ticketId: z.string(),
+        merchantName: z.string(),
+        violationCategory: z.string().optional(),
+        createdAt: z.string(),
+        status: z.string(),
+      }),
+    ),
+  })
+  .openapi("GetMyReportsResponse");
+
+export type GetMyReportsResponse = z.infer<typeof getMyReportsResponseSchema>;
