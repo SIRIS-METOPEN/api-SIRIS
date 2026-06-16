@@ -26,6 +26,7 @@ export type AppVariables = {
     name: string;
     email: string;
     image?: string | null;
+    role: "user" | "admin";
   };
   /** Session aktif — di-set oleh auth middleware */
   session?: {

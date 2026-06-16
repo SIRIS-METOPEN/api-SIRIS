@@ -4,7 +4,7 @@ import { getAuth } from "./auth";
 import { EnvSchema } from "./env";
 import { createRouter } from "./factory";
 import { authRouter } from "./modules/auth";
-import { reportsRouter } from "./modules/reports";
+import { reportsRouter, dashboardRouter } from "./modules/reports";
 import { corsMiddleware } from "./middlewares/cors";
 import z from "zod";
 
@@ -116,6 +116,9 @@ app.route("/api/auth", authRouter);
 
 // Reports
 app.route("/api/reports", reportsRouter);
+
+// Dashboard
+app.route("/api/dashboard", dashboardRouter);
 
 app.get("/", (c) => c.text("SIRIS API is running."));
 
